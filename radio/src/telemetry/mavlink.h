@@ -43,24 +43,24 @@
 #define MAVLINK_COMM_NUM_BUFFERS 1
 
 #include "GCS_MAVLink/include_v1.0/mavlink_types.h"
-#include "serial.h"
+//#include "serial.h"
 #include "opentx.h"
-#include "serial.h"
+//#include "serial.h"
 //#include "include/mavlink_helpers.h"
 
 extern mavlink_system_t mavlink_system;
 
-extern void SERIAL_start_uart_send();
-extern void SERIAL_end_uart_send();
-extern void SERIAL_send_uart_bytes(const uint8_t * buf, uint16_t len);
+//extern void SERIAL_start_uart_send();
+//extern void SERIAL_end_uart_send();
+//extern void SERIAL_send_uart_bytes(const uint8_t * buf, uint16_t len);
 
 # define MAV_SYSTEM_ID	1
 //mavlink_system.type = 2; //MAV_QUADROTOR;
 
 
-#define MAVLINK_START_UART_SEND(chan,len) SERIAL_start_uart_send()
-#define MAVLINK_END_UART_SEND(chan,len) SERIAL_end_uart_send()
-#define MAVLINK_SEND_UART_BYTES(chan,buf,len) SERIAL_send_uart_bytes(buf,len)
+//#define MAVLINK_START_UART_SEND(chan,len) SERIAL_start_uart_send()
+//#define MAVLINK_END_UART_SEND(chan,len) SERIAL_end_uart_send()
+//#define MAVLINK_SEND_UART_BYTES(chan,buf,len) SERIAL_send_uart_bytes(buf,len)
 
 #include "../GCS_MAVLink/include_v1.0/ardupilotmega/mavlink.h"
 

@@ -168,6 +168,10 @@ NOINLINE void processSerialData(uint8_t data)
     }
 #endif
 
+  if (1) {
+    MAVLINK_rchandler(data);
+  }
+  else {
   switch (dataState)
   {
     case STATE_DATA_START:
@@ -262,6 +266,7 @@ NOINLINE void processSerialData(uint8_t data)
     dataState = STATE_DATA_IDLE;
   }
 #endif
+}
 }
 
 enum AlarmsCheckSteps {
