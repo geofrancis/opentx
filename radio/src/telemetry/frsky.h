@@ -39,6 +39,9 @@
 
 #include <inttypes.h>
 
+#if defined(MAVLINK)
+  #include "mavlink.h"
+#endif
 #define FRSKY_SPORT_BAUDRATE      57600
 #define FRSKY_D_BAUDRATE          9600
 
@@ -67,6 +70,13 @@ enum TelemetryStates {
 };
 
 extern uint8_t telemetryState;
+#endif
+
+#if defined(MAVLINK)
+typedef void (*SerialFuncP)(uint8_t event);
+extern SerialFuncP RXHandler;
+extern void MAVLINK_telemetryWakeup(void);
+uint32_t mavbauds[] = {4800,9600,14400,19200,38400,57600,76800};
 #endif
 
 #if defined(CPUARM)

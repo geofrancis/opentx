@@ -92,7 +92,7 @@ void MAVLINK_rxhandler(uint8_t byte) {
 }
 #endif
 
-//SerialFuncP RXHandler = MAVLINK_rxhandler;
+SerialFuncP RXHandler = MAVLINK_rxhandler;
 
 /*!	\brief Reset basic Mavlink varables
  *	\todo Figure out exact function
@@ -127,7 +127,9 @@ void MAVLINK_reset(uint8_t warm_reset) {
 void MAVLINK_Init(void) {
 	mav_statustext[0] = 0;
 	MAVLINK_reset(0);
-	//SERIAL_Init();
+#ifndef PCBTARANIS
+	SERIAL_Init();
+#endif
 }
 
 /*!	\brief Status log message
@@ -171,8 +173,11 @@ static inline void REC_MAVLINK_MSG_ID_SYS_STATUS(const mavlink_message_t* msg) {
  */
 static inline void REC_MAVLINK_MSG_ID_RC_CHANNELS_RAW(const mavlink_message_t* msg) {
 	uint8_t temp_rssi =(mavlink_msg_rc_channels_raw_get_rssi(msg) * 100) / 255;
-	uint8_t temp_scale = 25 + g_model.mavlink.rc_rssi_scale * 5;
-	telemetry_data.rc_rssi =  (temp_rssi * 100) / temp_scale;
+	telemetry_data.rc_rssi = temp_rssi;
+#ifdef PCBTARANIS
+	frskyData.rssi[0].set(temp_rssi); //This one is for TELEMETRY_STREAMING; RX rssi
+	frskyData.rssi[1].set(temp_rssi); // This is for display: TX rssi
+#endif
 }
 
 /*!	\brief Arducopter specific radio message
@@ -200,6 +205,10 @@ static inline void REC_MAVLINK_MSG_ID_NAV_CONTROLLER_OUTPUT(const mavlink_messag
 static inline void REC_MAVLINK_MSG_ID_VFR_HUD(const mavlink_message_t* msg) {
 	telemetry_data.heading = mavlink_msg_vfr_hud_get_heading(msg);
 	telemetry_data.loc_current.rel_alt = mavlink_msg_vfr_hud_get_alt(msg);
+#ifdef PCBTARANIS
+        frskyData.hub.baroAltitude = (int16_t)(telemetry_data.loc_current.rel_alt*100.0f);
+	frskyData.hub.varioSpeed = (int16_t)(mavlink_msg_vfr_hud_get_climb(msg)*100.0f);
+#endif
 }
 
 /*!	\brief Heartbeat message
@@ -208,7 +217,15 @@ static inline void REC_MAVLINK_MSG_ID_VFR_HUD(const mavlink_message_t* msg) {
  */
 static inline void REC_MAVLINK_MSG_ID_HEARTBEAT(const mavlink_message_t* msg) {
 	telemetry_data.mode  = mavlink_msg_heartbeat_get_base_mode(msg);
+#ifdef PCBTARANIS
+        uint32_t tmp_mode = mavlink_msg_heartbeat_get_custom_mode(msg);
+        if (tmp_mode != telemetry_data.custom_mode) {
+          //audioQueue.playFile(modelMavFileNames[ap_modes_lut[tmp_mode]]);
+	}
+        telemetry_data.custom_mode=tmp_mode;
+#else
 	telemetry_data.custom_mode  = mavlink_msg_heartbeat_get_custom_mode(msg);
+#endif
 	telemetry_data.status = mavlink_msg_heartbeat_get_system_status(msg);
 	telemetry_data.mav_sysid = msg->sysid;
 	telemetry_data.mav_compid = msg->compid;
@@ -617,12 +634,14 @@ static inline void MAVLINK_msg_param_set(uint8_t idx) {
 }
 #endif
 
+#ifndef PCBTARANIS
 static inline void MAVLINK_msg_request_data_stream_pack_send(uint8_t req_stream_id, uint16_t req_message_rate,
 				uint8_t start_stop) {
 	mavlink_channel_t chan = MAVLINK_COMM_0;
 	mavlink_msg_request_data_stream_send(chan, mavlink_system.sysid, mavlink_system.compid, req_stream_id, req_message_rate,
 					start_stop);
 }
+#endif
 
 //! \brief old mode switch funtion
 static inline void MAVLINK_msg_action_pack_send(uint8_t action) {
@@ -631,10 +650,12 @@ static inline void MAVLINK_msg_action_pack_send(uint8_t action) {
 }
 
 //! \brief old mode switch funtion
+#ifndef PCBTARANIS
 static inline void MAVLINK_msg_set_mode_send(uint8_t mode) {
 	mavlink_channel_t chan = MAVLINK_COMM_0;
 	mavlink_msg_set_mode_send(chan, mavlink_system.sysid, mode, 0);
 }
+#endif
 
 /*!	\brief Looks like som kind of task switcher on a timer
  *	\todo Figure out where this was used for and intergrate in current
@@ -716,7 +737,11 @@ static inline void MAVLINK_msg_set_mode_send(uint8_t mode) {
  *	\todo Reimplemnt \link MAVLINK10mspoll
  *
  */
+#ifdef PCBTARANIS
+void MAVLINK_telemetryWakeup() {
+#else
 void telemetryWakeup() {
+#endif
 	uint16_t tmr10ms = get_tmr10ms();
 	uint8_t count = tmr10ms & 0x0f; // 15*10ms
 	if (!count) {
@@ -726,7 +751,9 @@ void telemetryWakeup() {
 
 			if (mav_heartbeat == -30) {
 				MAVLINK_reset(1);
-				//SERIAL_Init();
+#ifndef PCBTARANIS
+				SERIAL_Init();
+#endif
 			}
 //			SERIAL_startTX();
 		}

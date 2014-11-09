@@ -943,7 +943,7 @@ ifeq ($(ACCURAT_THROTTLE_STATS), YES)
 endif
 
 # EXTENSIONS (for Telemetry protocols)
-ifneq ($(EXT), $(filter $(EXT), STD FRSKY FRSKY_SPORT ARDUPILOT NMEA JETI MAVLINK TELEMETREZ))
+ifneq ($(EXT), $(filter $(EXT), STD FRSKY FRSKY_SPORT ARDUPILOT NMEA JETI MAVLINK TELEMETREZ FRSKY-MAVLINK))
   $(error Sorry, the EXT $(EXT) is not supported yet in openTx)
 endif
 
@@ -976,13 +976,17 @@ ifeq ($(EXT), TELEMETREZ)
   CPPDEFS += -DTELEMETREZ
 endif
 
-ifeq ($(EXT), $(filter $(EXT), FRSKY FRSKY_SPORT TELEMETREZ))
+ifeq ($(EXT), $(filter $(EXT), FRSKY FRSKY_SPORT TELEMETREZ FRSKY-MAVLINK))
   CPPDEFS += -DFRSKY
   ifeq ($(EXT), FRSKY_SPORT)
-	CPPSRC += telemetry/frsky.cpp telemetry/frsky_sport.cpp telemetry/frsky_d.cpp telemetry/mavlink.h telemetry/mavlink.cpp
+	CPPSRC += telemetry/frsky.cpp telemetry/frsky_sport.cpp telemetry/frsky_d.cpp
     CPPDEFS += -DFRSKY_SPORT
   else
     CPPSRC += telemetry/frsky.cpp telemetry/frsky_d.cpp
+    ifeq ($(EXT), FRSKY-MAVLINK)
+      CPPSRC += telemetry/frsky_sport.cpp telemetry/mavlink.cpp gui/view_mavlink.cpp
+      CPPDEFS += -DMAVLINK -DFRSKY_SPORT
+    endif
   endif
   CPPSRC += gui/view_telemetry.cpp
   

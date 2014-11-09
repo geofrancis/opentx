@@ -39,28 +39,38 @@
 #ifndef _MAVLINK_H_
 #define _MAVLINK_H_
 
+#ifndef PCBTARANIS
 #define MAVLINK_USE_CONVENIENCE_FUNCTIONS
+#endif
 #define MAVLINK_COMM_NUM_BUFFERS 1
 
+#ifdef PCBTARANIS
+#include "../GCS_MAVLink/include_v1.0/mavlink_types.h"
+#include "../opentx.h"
+#else
 #include "GCS_MAVLink/include_v1.0/mavlink_types.h"
-//#include "serial.h"
+#include "serial.h"
 #include "opentx.h"
-//#include "serial.h"
-//#include "include/mavlink_helpers.h"
+#include "serial.h"
+#endif
 
 extern mavlink_system_t mavlink_system;
 
-//extern void SERIAL_start_uart_send();
-//extern void SERIAL_end_uart_send();
-//extern void SERIAL_send_uart_bytes(const uint8_t * buf, uint16_t len);
+#ifndef PCBTARANIS
+extern void SERIAL_start_uart_send();
+extern void SERIAL_end_uart_send();
+extern void SERIAL_send_uart_bytes(const uint8_t * buf, uint16_t len);
+#endif
 
 # define MAV_SYSTEM_ID	1
 //mavlink_system.type = 2; //MAV_QUADROTOR;
 
 
-//#define MAVLINK_START_UART_SEND(chan,len) SERIAL_start_uart_send()
-//#define MAVLINK_END_UART_SEND(chan,len) SERIAL_end_uart_send()
-//#define MAVLINK_SEND_UART_BYTES(chan,buf,len) SERIAL_send_uart_bytes(buf,len)
+#ifndef PCBTARANIS
+#define MAVLINK_START_UART_SEND(chan,len) SERIAL_start_uart_send()
+#define MAVLINK_END_UART_SEND(chan,len) SERIAL_end_uart_send()
+#define MAVLINK_SEND_UART_BYTES(chan,buf,len) SERIAL_send_uart_bytes(buf,len)
+#endif
 
 #include "../GCS_MAVLink/include_v1.0/ardupilotmega/mavlink.h"
 
@@ -107,7 +117,29 @@ extern mavlink_system_t mavlink_system;
 #define AP_INITIALISING  16
 #define AP_NUM_MODES 17
 
-static const uint8_t ap_modes_lut[18] PROGMEM = {0,1,2,3,12,4,5,12,12,12,6,7,8,9,12,12,10,11};
+static const uint8_t ap_modes_lut[18] PROGMEM = {0,1,2,3,4,5,6,7,8,14,9,10,11,14,14,12,13};
+
+#ifdef PCBTARANIS
+/*
+const char * modelMavFileNames[] = {
+  "/SOUNDS/en/AP_0.wav",
+  "/SOUNDS/en/AP_1.wav",
+  "/SOUNDS/en/AP_2.wav",
+  "/SOUNDS/en/AP_3.wav",
+  "/SOUNDS/en/AP_4.wav",
+  "/SOUNDS/en/AP_5.wav",
+  "/SOUNDS/en/AP_6.wav",
+  "/SOUNDS/en/AP_7.wav",
+  "/SOUNDS/en/AP_8.wav",
+  "/SOUNDS/en/AP_10.wav",
+  "/SOUNDS/en/AP_11.wav",
+  "/SOUNDS/en/AP_12.wav",
+  "/SOUNDS/en/AP_15.wav",
+  "/SOUNDS/en/error.wav",
+  "/SOUNDS/en/error.wav"
+};
+*/
+#endif
 
 /*
  * Type definitions

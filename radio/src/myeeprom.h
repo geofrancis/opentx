@@ -1746,6 +1746,9 @@ enum TelemetryProtocol
   PROTOCOL_TELEMETRY_FIRST,
   PROTOCOL_FRSKY_SPORT = PROTOCOL_TELEMETRY_FIRST,
   PROTOCOL_FRSKY_D,
+#if defined(PCBTARANIS) && defined(MAVLINK)
+  PROTOCOL_MAVLINK,
+#endif
   PROTOCOL_FRSKY_D_SECONDARY
 };
 
@@ -1787,6 +1790,10 @@ PACK(typedef struct t_ModelData {
   MODEL_GVARS_DATA
 
   TELEMETRY_DATA
+
+#if defined(PCBTARANIS) && defined(MAVLINK)
+  MavlinkData mavlink;
+#endif
 
   MODELDATA_EXTRA
 
