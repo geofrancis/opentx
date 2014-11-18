@@ -76,7 +76,7 @@ extern uint8_t telemetryState;
 typedef void (*SerialFuncP)(uint8_t event);
 extern SerialFuncP RXHandler;
 extern void MAVLINK_telemetryWakeup(void);
-uint32_t mavbauds[] = {4800,9600,14400,19200,38400,57600,76800};
+uint32_t mavbauds[] = {4800,9600,14400,19200,38400,57600,76800,115200};
 #endif
 
 #if defined(CPUARM)
